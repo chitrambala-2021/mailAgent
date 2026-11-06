@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Runs Mail Notifier in the background on login (macOS launchd).
+  1. Replace /Users/YOUR_USER/mail-notifier with your real project path (4 places).
+  2. cp deploy/com.mailnotifier.plist ~/Library/LaunchAgents/
+  3. launchctl load ~/Library/LaunchAgents/com.mailnotifier.plist
+  Stop:  launchctl unload ~/Library/LaunchAgents/com.mailnotifier.plist
+  Run "python -m src.main --login" once BEFORE loading this (launchd can't do interactive login).
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.mailnotifier</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/YOUR_USER/mail-notifier/.venv/bin/python</string>
+        <string>-m</string>
+        <string>src.main</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/YOUR_USER/mail-notifier</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>ThrottleInterval</key>
+    <integer>60</integer>
+
+    <key>StandardOutPath</key>
+    <string>/Users/YOUR_USER/mail-notifier/data/launchd.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/YOUR_USER/mail-notifier/data/launchd.err.log</string>
+</dict>
+</plist>

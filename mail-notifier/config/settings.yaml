@@ -1,0 +1,80 @@
+# ============================================
+# Mail Notifier - Main Configuration
+# Secrets (API keys, client IDs, webhooks) go in .env
+# ============================================
+
+# --- Accounts to monitor ---
+# provider: auto | gmail | outlook
+# "auto" detects from the email domain, then MX / SPF DNS records
+accounts:
+  - email: "you@company.com"
+    provider: auto
+    enabled: true
+  # - email: "personal@gmail.com"
+  #   provider: auto
+  #   enabled: true
+  # - email: "you@othercompany.com"
+  #   provider: outlook        # force a provider, skip detection
+  #   enabled: true
+
+# --- Polling ---
+poll_interval_minutes: 5
+max_emails_per_poll: 50          # safety cap per account per cycle
+first_run_lookback_minutes: 60   # how far back to look on the very first run
+
+# --- Filters ---
+# mode: all   -> notify on every new mail
+# mode: rules -> notify only when rules match
+#   - senders / subject_keywords: match ANY of them
+#   - high_importance_only: extra gate applied on top
+filters:
+  mode: all
+  unread_only: true
+  exclude_folders: ["Junk Email", "Spam"]   # Outlook folder names / Gmail labels
+  rules:
+    senders: []                  # e.g. ["boss@company.com", "@client.com", "client.com"]
+    subject_keywords: []         # e.g. ["urgent", "production", "failed"]
+    high_importance_only: false
+
+# --- AI Triage (Claude) ---
+ai_triage:
+  enabled: false
+  model: "claude-haiku-5-5"      # fast + cheap; use claude-sonnet-5-5 for better judgement
+  summarize: true                # 1-2 line summary in the notification
+  classify_priority: true        # high / medium / low
+  min_priority_to_notify: low    # skip mails below this level
+  max_body_chars: 4000           # body text sent to Claude is truncated to this
+
+# --- Notification channels (enable any combination) ---
+notifications:
+  batch_mode: false              # true = one digest per poll, false = one alert per mail
+  channels:
+    macos:
+      enabled: true
+      sound: "default"           # any name from /System/Library/Sounds, or "" for silent
+    slack:
+      enabled: false             # SLACK_WEBHOOK_URL in .env
+    teams:
+      enabled: false             # TEAMS_WEBHOOK_URL in .env (Teams Workflows webhook)
+    email:
+      enabled: false             # SMTP_* settings in .env
+      to: "you@company.com"
+    ntfy:
+      enabled: false             # phone push via the ntfy app
+      server: "https://ntfy.sh"
+      topic: "my-mail-alerts-change-me"
+
+# --- Provider-specific settings ---
+gmail:
+  credentials_file: "config/gmail_credentials.json"   # OAuth "Desktop app" client from Google Cloud
+  token_dir: "data/tokens/gmail"
+  scopes: ["https://www.googleapis.com/auth/gmail.readonly"]
+
+outlook:
+  token_dir: "data/tokens/outlook"
+  scopes: ["Mail.Read"]          # read-only; MSAL adds offline_access automatically
+
+# --- Storage & logging ---
+state_file: "data/state.json"
+log_level: INFO
+log_file: "data/notifier.log"

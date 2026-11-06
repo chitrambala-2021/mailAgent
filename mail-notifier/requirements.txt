@@ -1,0 +1,16 @@
+pyyaml>=6.0
+python-dotenv>=1.0
+requests>=2.31
+dnspython>=2.6
+
+# Gmail
+google-api-python-client>=2.120
+google-auth>=2.28
+google-auth-oauthlib>=1.2
+google-auth-httplib2>=0.2
+
+# Outlook / Microsoft Graph
+msal>=1.28
+
+# AI triage (optional)
+anthropic>=0.40
